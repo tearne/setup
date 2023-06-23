@@ -32,7 +32,7 @@ def compile_and_install_python(version, password, del_tmp=True):
     ver_minor = '.'.join(version.split('.')[0:2])
 
     if util.run(f"python{ver_minor} --version").returncode == 0:
-        print(f"Python version {ver_minor} is already installed")
+        print(f" - already installed")
         return
     else:
         print(f"Python version {ver_minor} not installed yet")

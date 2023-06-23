@@ -6,17 +6,19 @@ import cargo
 def main(password):
     install_helix(password)
     install_zellij()
-    install_broot()
+    install_broot(password)
 
 
 def install_zellij():
-    # todo check if already installed
+    if util.run("zellij -V").returncode == 0:
+        print(" - already installed")
+        return
     cargo.install_cargo()
     util.run("cargo install --locked zellij")
     
 def install_broot(password=util.Password()):
     if util.run("broot -V").returncode == 0:
-        print("broot already installed")
+        print(" - already installed")
         return
 
     cargo.install_cargo()
@@ -25,6 +27,10 @@ def install_broot(password=util.Password()):
 
 
 def install_lazygit(password=util.Password()):
+    if util.run("lazygit -v").returncode == 0:
+        print(" - already installed")
+        return
+
     ver = util.run(
         r"""curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*'""",
         capture_output=True
@@ -39,6 +45,10 @@ def install_lazygit(password=util.Password()):
 
 
 def install_helix(password=util.Password()):
+    if util.run("hx -V").returncode == 0:
+        print(" - already installed")
+        return
+    
     util.sudo("add-apt-repository -y ppa:maveonair/helix-editor", password)
     util.sudo("apt update", password)
     util.sudo("apt install helix", password)

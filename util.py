@@ -6,6 +6,7 @@ import subprocess
 import ensure
 ensure.package("pexpect")
 
+# pylint: disable=wrong-import-position,wrong-import-order
 import pexpect
 
 
@@ -22,7 +23,7 @@ class Password:
 
 
 def run(cmd, cwd=None, capture_output=False):
-    print(" *** Running:", cmd)
+    print("*** Running:", cmd)
     
     return subprocess.run(
         cmd,
@@ -30,6 +31,7 @@ def run(cmd, cwd=None, capture_output=False):
         capture_output=capture_output,
         text=True,
         encoding='utf8',
+        check=False,
         cwd=cwd
     )
 
@@ -47,7 +49,7 @@ def sudo(cmd, password, timeout=None, cwd=None):
         run(cmd, cwd)
     else:
         command = f"sudo {cmd}"
-        print(" *** Running (sudo): ", cmd)
+        print("*** Running (sudo): ", cmd)
         print(f"     Timeout = {timeout}")
         child = pexpect.spawnu(command, cwd=cwd, timeout=timeout)
         child.logfile_read = sys.stdout

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-import util
 import os
-import subprocess
 import re
+import util
 
 
 def main():
@@ -12,7 +11,7 @@ def main():
 
 def install_cargo():
     if util.run("cargo -V").returncode == 0:
-        print("Cargo is already installed")
+        print(" -  already installed")
         return
 
     util.run("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y")

@@ -1,4 +1,5 @@
 import os
+import util
 import sys
 import getpass
 import subprocess
@@ -42,6 +43,14 @@ def am_root():
 
 def is_aarch64():
     return os.uname().machine == 'aarch64'
+
+
+def zero_exit_code(command):
+    if util.run(command).returncode == 0:
+        print(" - returned zero exit code")
+        return True
+    else:
+        return False
 
 
 def sudo(cmd, password, timeout=None, cwd=None):

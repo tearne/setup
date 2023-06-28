@@ -1,29 +1,30 @@
 #!/usr/bin/env python3
 import util
 import cargo
+import helix
 
 
 def main(password):
-    install_helix(password)
-    install_zellij()
-    install_broot(password)
+    helix.ensure(password)
+    ensure_zellij()
+    ensure_broot(password)
 
 
-def install_zellij():
+def ensure_zellij():
     if util.zero_exit_code("zellij -V"):
         return
     print(" - installing zellij")
 
-    cargo.install_cargo()
+    cargo.ensure_cargo()
     util.run("cargo install --locked zellij")
 
 
-def install_broot(password=util.Password()):
+def ensure_broot(password=util.Password()):
     if util.zero_exit_code("broot -V"):
         return
     print(" - installing broot")
 
-    cargo.install_cargo()
+    cargo.ensure_cargo()
     util.sudo(
         "apt install -y build-essential\
             ibxcb1-dev\
@@ -34,7 +35,7 @@ def install_broot(password=util.Password()):
     util.run("cargo install --locked broot")
 
 
-def install_lazygit(password=util.Password()):
+def ensure_lazygit(password=util.Password()):
     if util.zero_exit_code("lazygit -v"):
         return
     print(" - installing lazygit")
@@ -56,16 +57,6 @@ def install_lazygit(password=util.Password()):
     )
     util.run("tar xf lazygit.tar.gz lazygit")
     util.sudo("install lazygit /usr/local/bin", password)
-
-
-def install_helix(password=util.Password()):
-    if util.zero_exit_code("hx -V"):
-        return
-    print(" - installing helix")
-
-    util.sudo("add-apt-repository -y ppa:maveonair/helix-editor", password)
-    util.sudo("apt update", password)
-    util.sudo("apt install helix", password)
 
 
 if __name__ == "__main__":

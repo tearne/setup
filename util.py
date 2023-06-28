@@ -53,6 +53,10 @@ def zero_exit_code(command):
         return False
 
 
+def cd_script_dir():
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
 def sudo(cmd, password, timeout=None, cwd=None):
     if am_root():
         run(cmd, cwd)

@@ -4,7 +4,7 @@ import util
 
 
 def main(password):
-    py_version = "3.11.4"
+    py_version = "3.11.5"
     compile_and_install_python(py_version, password)
     ensure_venv(
         py_version,

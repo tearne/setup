@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This example demonstrates a single Python script file which 
-# (a) runs in it's own virtual environment, creating it if necessary,
+# (a) runs in its own virtual environment, creating it if necessary,
 # (b) installs dependencies with pip
 
 VENV_NAME=venv

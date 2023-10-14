@@ -1,9 +1,9 @@
 #!/bin/bash
-# 1. Starts as a BASH script, ensuring working dir is script location
-# 2. Creates a virtual environment, if it doesn't already exist
-# 3. Starts Python from the venv, to avoid system pollution
-# 4. Defines minimal `ensure` fn to install package(s) with pip
-# 5. Runs user Python script
+
+# This example demonstrates a single Python script file which 
+# (a) runs in it's own virtual environment, creating it if necessary,
+# (b) installs dependencies with pip
+
 VENV_NAME=venv
 
 set -e
@@ -13,20 +13,15 @@ if ! test -f $VENV_NAME/bin/python; then
   python3 -m venv $VENV_NAME
 fi
 
-export PIP_DISABLE_PIP_VERSION_CHECK=1
-echo " * Starting Python"
-
-
 $VENV_NAME/bin/python <<END_PYTHON
 import importlib, subprocess, sys
 def ensure(package):
   try: importlib.import_module(package)
   except ImportError:
     print(f" * Installing package: {package}")
-    subprocess.check_call([sys.executable,'-m','pip','install',package])
+    subprocess.check_call([sys.executable,'-m','pip','install',package,'--disable-pip-version-check'])
     importlib.invalidate_caches()
     importlib.import_module(package)
-
 ensure("rich")
 ###########################
 # Python user script start

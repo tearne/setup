@@ -1,20 +1,8 @@
-#!/bin/bash
+import importlib, subprocess, sys, os
 
-# This example script:
-# (a) Builds its own python venv as required. 
-# (b) Starts Python in it.
-# (c) Ensures pip dependencies are installed.
-# (d) Runs the user code.
-#
-# - It's terse to get to the user code quicker.
-# - The heredoc can make line error reporting messy.
-#   An alternative is importing another script from file.
+if os.environ.get('VIRTUAL_ENV') is None:
+    exit("Run this script from a venv to avoid polluting your system.")
 
-VENV=venv; PYTHON=python3
-set -eu; cd "$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-if ! [ -f $VENV/bin/python ]; then echo " * Creating ${VENV}" && $PYTHON -m venv $VENV; fi
-. $VENV/bin/activate && $PYTHON - $@ <<END_PYTHON
-import importlib, subprocess, sys
 def ensure(package):
   try: importlib.import_module(package)
   except ImportError:
@@ -38,5 +26,3 @@ console.rule('Rust', style='red')
 console.print('''Rust is a multi-paradigm, general-purpose programming \
 language that emphasizes performance, type safety, and concurrency.\n''')
 
-
-END_PYTHON

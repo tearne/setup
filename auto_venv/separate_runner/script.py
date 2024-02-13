@@ -1,6 +1,6 @@
 import importlib, subprocess, sys, os
 
-if os.environ.get('VIRTUAL_ENV') is None:
+if 'VIRTUAL_ENV' not in os.environ:
     exit("Run this script from a venv to avoid polluting your system.")
 
 def ensure(package):

@@ -10,8 +10,8 @@ The benefits of the separate runner are that:
  - Error line numbers in the Python code are correct, rather than offset due to use of a heredoc.
 
 The code in both examples do the same thing:
- - Build the venv as required. 
- - Start Python in it.
- - Ensure pip dependencies are installed.
- - Run the user script.
+1. Build the venv as required. 
+1. Start Python in it.
+1. Ensure pip dependencies are installed.
+1. Run the user script.
 

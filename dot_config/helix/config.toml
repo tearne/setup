@@ -5,7 +5,3 @@ true-color = true
 line-number = "relative"
 bufferline = "always"
 rulers = [80]
-
-[keys.normal]
-C-7 = ["toggle_comments", "move_line_down", "goto_first_nonwhitespace"]
-

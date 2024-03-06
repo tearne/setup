@@ -3,13 +3,13 @@ import importlib, subprocess, sys, os
 if 'VIRTUAL_ENV' not in os.environ:
     exit("Run this script from a venv to avoid polluting your system.")
 
-def ensure(package):
-  try: importlib.import_module(package)
-  except ImportError:
-    print(f" * Installing package: {package}")
-    subprocess.check_call([sys.executable,'-m','pip','install',package,'--disable-pip-version-check'])
-    importlib.invalidate_caches(); importlib.import_module(package)
-ensure("rich")
+# def ensure(package):
+#   try: importlib.import_module(package)
+#   except ImportError:
+#     print(f" * Installing package: {package}")
+#     subprocess.check_call([sys.executable,'-m','pip','install',package,'--disable-pip-version-check'])
+#     importlib.invalidate_caches(); importlib.import_module(package)
+# ensure("rich")
 
 ###########################
 # Python user script start

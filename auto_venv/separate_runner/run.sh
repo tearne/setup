@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 PY_VER=3.12
 
 PYTHON="python${PY_VER}"; export VENV="venv-${PY_VER}"

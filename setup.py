@@ -23,6 +23,8 @@ def install():
     install_rust()
     install_zellij()
     install_helix()
+    install_tok()
+    setup_local_bin_path()
 
 
 # ---------------------------------------------------------------------------
@@ -118,6 +120,33 @@ def _link_helix_config():
     with task("helix config"):
         src = SCRIPT_DIR / "resources" / "helix" / "config.toml"
         dst = Path.home() / ".config" / "helix" / "config.toml"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if dst.exists() or dst.is_symlink():
+            if dst.is_symlink() and dst.resolve() == src.resolve():
+                log("symlink already correct")
+                return
+            log(f"WARNING: {dst} already exists, replacing")
+            dst.unlink()
+        os.symlink(src, dst)
+        log(f"symlinked {dst} -> {src}")
+
+
+def setup_local_bin_path():
+    with task("~/.local/bin on PATH"):
+        profile = Path.home() / ".profile"
+        marker = 'PATH="$HOME/.local/bin:$PATH"'
+        if profile.exists() and marker in profile.read_text():
+            log("already configured")
+            return
+        with open(profile, "a") as f:
+            f.write(f'\n# Added by setup.py\nexport {marker}\n')
+        log(f"appended to {profile}")
+
+
+def install_tok():
+    with task("tok"):
+        src = SCRIPT_DIR / "resources" / "tok" / "tok"
+        dst = Path.home() / ".local" / "bin" / "tok"
         dst.parent.mkdir(parents=True, exist_ok=True)
         if dst.exists() or dst.is_symlink():
             if dst.is_symlink() and dst.resolve() == src.resolve():

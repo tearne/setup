@@ -29,7 +29,7 @@ Intially, there's no configuration.  Everything is hard coded in the source code
 - Prompts for user password once at start if required.
 - Wherever possible, the tool will install its own dependencies at runtime (e.g. `uv`, `curl`).
 
-### Tools to install
+### Third-party tools to install
 All latest stable versions
 - `uv` (via `curl`) - bootstrapped via outer BASH script or manually by user.
 - Rust and Cargo with rust analyzer (via RustUp (via `curl`))
@@ -48,6 +48,11 @@ All latest stable versions
 - `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
 - Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
 
+### Scripts / aliases to install
+- `tok` (see `resources`) to be installed in `.local/bin`
+
+### Configuration to set up
+- Ensure that `.local/bin/` is on the users path.
 
 ## Non-Functional Requirements
 

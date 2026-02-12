@@ -18,7 +18,7 @@ A script to install basic dev tools on Ubuntu/Debian.
 
 ## Configuration
 
-Intially, there's no configuration.  Everything is hard coded in the source code.  If a tool isn't needed the user should be able to simply open the code and comment out a clearly named function call (e.g. `install_zellij()`).
+Intially, there's no configuration.  Everything is hard coded in the source code.  The script should have a single, obvious place near the top where each tool's install is called directly — e.g. `install_zellij()`. To skip a tool, the user comments out that line.
 
 ## Functional Requirements
 
@@ -50,13 +50,28 @@ All latest stable versions
 
 ## Non-Functional Requirements
 
-- Prefer a single Python source file, unless it compromises readabiliy.
-- Concise source code, easily hackable, similar in spirit to a script.
-- Root structure to include:
+- The code should be written in a "Python orchestrated shell script" (POSS) style:
+  - If there is a reasonable way to achieve an installation sub-task in the shell, prefer running that command that over the Pythonic equivalant.
+  - Examples:
+    - To download the latest vesion of `helix`:
+```sh
+curl -s https://api.github.com/repos/helix-editor/helix/releases/latest | grep -oP '"browser_download_url": "\K[^"]*amd64.deb' | xargs wget
+````
+    - To apt install `curl`:
+```sh
+DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+```
+   - To run a command which needs a variable substitution:
+    
+  - But we don't need to take this to an extreme and force trivial actions (e.g. loops) to the shell.
+  - Prefer a single Python source file, unless it compromises readabiliy.
+  - The code is not only intended to be run, but to be reference documentation on shell commands.  It should be easy to copy the shell commands and paste them into a terminal if a manual approach is preferred.
+- Root structure to include these key files:
 ```
 /root/setup/
-├── setup.sh    # Bash entry point (the one command)
-├── setup.py    # All Python logic (uv single-file script)
+├── resources/  # Config files to be soft linked during installation
+├── setup.sh    # Bash entry point, bootstraps `uv`
+├── setup.py    # Python logic (uv single-file script)
 ├── test.sh     # Incus test harness
 ```
 - Use `#!/usr/bin/env -S uv run --script` in `setup.sh`
@@ -83,6 +98,7 @@ All latest stable versions
 
 - No flags and config files at this stage, as prefer to simply edit the code.
 - Not cross platform - Debian/Ubuntu based only.
+- Not cross architecture - unles it doesn't conflict with the POSS goal.
 - No fancy logging, just fail fast with breadcrumbs. 
 
 ## Future goals

@@ -8,106 +8,20 @@ import sys
 import os
 import shutil
 import getpass
-import platform
-import urllib.request
-import json
 from pathlib import Path
 from contextlib import contextmanager
 
 # ---------------------------------------------------------------------------
 # Comment out any tool you don't want installed
 # ---------------------------------------------------------------------------
-TOOLS = [
-    "htop",
-    "btop",
-    "incus",
-    "rust",
-    "zellij",
-    "helix",
-]
 
-# ---------------------------------------------------------------------------
-# Utility layer
-# ---------------------------------------------------------------------------
-
-_indent = 0
-_password = None
-SCRIPT_DIR = Path(__file__).resolve().parent
-
-
-def log(msg):
-    prefix = "  " * _indent
-    for line in msg.splitlines():
-        print(f"{prefix}{line}", flush=True)
-
-
-@contextmanager
-def task(name):
-    global _indent
-    log(f"▶ {name}")
-    _indent += 1
-    try:
-        yield
-    finally:
-        _indent -= 1
-
-
-def run(cmd, env=None):
-    merged = {**os.environ, **(env or {})}
-    proc = subprocess.Popen(
-        cmd, shell=True, text=True,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        env=merged,
-    )
-    for line in proc.stdout:
-        log(line.rstrip("\n"))
-    proc.wait()
-    if proc.returncode != 0:
-        log(f"FAILED (exit {proc.returncode}): {cmd}")
-        sys.exit(1)
-
-
-def sudo(cmd, env=None):
-    if os.geteuid() == 0:
-        run(cmd, env=env)
-    else:
-        full = f"sudo -S {cmd}"
-        merged = {**os.environ, **(env or {})}
-        proc = subprocess.Popen(
-            full, shell=True, text=True,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            env=merged,
-        )
-        proc.stdin.write(_password + "\n")
-        proc.stdin.close()
-        for line in proc.stdout:
-            log(line.rstrip("\n"))
-        proc.wait()
-        if proc.returncode != 0:
-            log(f"FAILED (exit {proc.returncode}): {cmd}")
-            sys.exit(1)
-
-
-def init_password():
-    global _password
-    if os.geteuid() == 0:
-        return
-    if subprocess.run("sudo -n true", shell=True, capture_output=True).returncode == 0:
-        return
-    _password = getpass.getpass("Enter sudo password: ")
-    result = subprocess.run(
-        "sudo -S true", shell=True, text=True,
-        input=_password + "\n",
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-    )
-    if result.returncode != 0:
-        print("Error: incorrect password.")
-        sys.exit(1)
-
-
-def is_installed(cmd):
-    return shutil.which(cmd) is not None
+def install():
+    install_htop()
+    install_btop()
+    install_incus()
+    install_rust()
+    install_zellij()
+    install_helix()
 
 
 # ---------------------------------------------------------------------------
@@ -119,7 +33,7 @@ def install_htop():
         if is_installed("htop"):
             log("already installed, skipping")
             return
-        sudo("apt-get install -y -qq htop", env={"DEBIAN_FRONTEND": "noninteractive"})
+        sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq htop")
         log("done")
 
 
@@ -128,7 +42,7 @@ def install_btop():
         if is_installed("btop"):
             log("already installed, skipping")
             return
-        sudo("apt-get install -y -qq btop", env={"DEBIAN_FRONTEND": "noninteractive"})
+        sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq btop")
         log("done")
 
 
@@ -137,7 +51,7 @@ def install_incus():
         if is_installed("incus"):
             log("already installed, skipping")
             return
-        sudo("apt-get install -y -qq incus", env={"DEBIAN_FRONTEND": "noninteractive"})
+        sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq incus")
         log("done")
 
 
@@ -172,39 +86,12 @@ def install_helix():
             _link_helix_config()
             return
 
-        machine = platform.machine()
-        deb_arch_map = {"x86_64": "amd64", "aarch64": "arm64"}
-        deb_arch = deb_arch_map.get(machine)
-        if not deb_arch:
-            log(f"Unsupported architecture: {machine}")
-            sys.exit(1)
-
-        with task("downloading latest release"):
-            url = "https://api.github.com/repos/helix-editor/helix/releases/latest"
-            with urllib.request.urlopen(url) as resp:
-                release = json.loads(resp.read())
-
-            tag = release["tag_name"]
-            log(f"latest release: {tag}")
-
-            asset_url = None
-            for asset in release["assets"]:
-                name = asset["name"]
-                if name.endswith(".deb") and deb_arch in name:
-                    asset_url = asset["browser_download_url"]
-                    break
-
-            if not asset_url:
-                log(f"No .deb asset found for {deb_arch}")
-                sys.exit(1)
-
-            deb_path = Path(f"/tmp/helix-{tag}-{deb_arch}.deb")
-            log(f"downloading {asset_url}")
-            urllib.request.urlretrieve(asset_url, deb_path)
+        with task("downloading latest .deb"):
+            run(r"""curl -s https://api.github.com/repos/helix-editor/helix/releases/latest | grep -oP '"browser_download_url": "\K[^"]*amd64\.deb' | xargs curl -Lo /tmp/helix.deb""")
 
         with task("installing"):
-            sudo(f"dpkg -i {deb_path}")
-            deb_path.unlink(missing_ok=True)
+            sudo("dpkg -i /tmp/helix.deb")
+            run("rm /tmp/helix.deb")
             log("done")
 
         _link_helix_config()
@@ -226,28 +113,97 @@ def _link_helix_config():
 
 
 # ---------------------------------------------------------------------------
-# Main
+# Utilities
 # ---------------------------------------------------------------------------
 
-INSTALLER = {
-    "htop": install_htop,
-    "btop": install_btop,
-    "incus": install_incus,
-    "rust": install_rust,
-    "zellij": install_zellij,
-    "helix": install_helix,
-}
+_indent = 0
+_password = None
+SCRIPT_DIR = Path(__file__).resolve().parent
 
+
+def log(msg):
+    prefix = "  " * _indent
+    for line in msg.splitlines():
+        print(f"{prefix}{line}", flush=True)
+
+
+@contextmanager
+def task(name):
+    global _indent
+    log(f"▶ {name}")
+    _indent += 1
+    try:
+        yield
+    finally:
+        _indent -= 1
+
+
+def run(cmd):
+    proc = subprocess.Popen(
+        cmd, shell=True, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    )
+    for line in proc.stdout:
+        log(line.rstrip("\n"))
+    proc.wait()
+    if proc.returncode != 0:
+        log(f"FAILED (exit {proc.returncode}): {cmd}")
+        sys.exit(1)
+
+
+def sudo(cmd):
+    if os.geteuid() == 0:
+        run(cmd)
+    else:
+        full = f"sudo -S {cmd}"
+        proc = subprocess.Popen(
+            full, shell=True, text=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        )
+        proc.stdin.write(_password + "\n")
+        proc.stdin.close()
+        for line in proc.stdout:
+            log(line.rstrip("\n"))
+        proc.wait()
+        if proc.returncode != 0:
+            log(f"FAILED (exit {proc.returncode}): {cmd}")
+            sys.exit(1)
+
+
+def init_password():
+    global _password
+    if os.geteuid() == 0:
+        return
+    if subprocess.run("sudo -n true", shell=True, capture_output=True).returncode == 0:
+        return
+    _password = getpass.getpass("Enter sudo password: ")
+    result = subprocess.run(
+        "sudo -S true", shell=True, text=True,
+        input=_password + "\n",
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    )
+    if result.returncode != 0:
+        print("Error: incorrect password.")
+        sys.exit(1)
+
+
+def is_installed(cmd):
+    return shutil.which(cmd) is not None
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 def main():
     with task("Dev environment setup"):
         init_password()
 
         with task("apt update"):
-            sudo("apt-get update -qq", env={"DEBIAN_FRONTEND": "noninteractive"})
+            sudo("DEBIAN_FRONTEND=noninteractive apt-get update -qq")
 
-        for tool in TOOLS:
-            INSTALLER[tool]()
+        install()
 
     log("Setup complete.")
 

@@ -1,7 +1,0 @@
-theme = "autumn"
-
-[editor]
-true-color = true
-line-number = "relative"
-bufferline = "always"
-rulers = [80]

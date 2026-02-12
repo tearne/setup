@@ -46,6 +46,7 @@ All latest stable versions
      ```
 - Zellij (via `cargo binstall`)
 - `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
+- Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
 
 
 ## Non-Functional Requirements

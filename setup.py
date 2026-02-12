@@ -19,6 +19,7 @@ def install():
     install_htop()
     install_btop()
     install_incus()
+    init_incus()
     install_rust()
     install_zellij()
     install_helix()
@@ -52,6 +53,22 @@ def install_incus():
             log("already installed, skipping")
             return
         sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq incus")
+        log("done")
+
+
+def init_incus():
+    in_container = subprocess.run("systemd-detect-virt --container --quiet", shell=True).returncode == 0
+    # ZFS backend not tested in containers (no kernel modules available)
+    backend = "dir" if in_container else "zfs"
+
+    with task(f"incus init ({backend})"):
+        sudo("systemctl start incus.service")
+        if subprocess.run("incus storage show default", shell=True, capture_output=True).returncode == 0:
+            log("already initialized, skipping")
+            return
+        if backend == "zfs":
+            sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq zfsutils-linux")
+        sudo(f"incus admin init --auto --storage-backend={backend}")
         log("done")
 
 

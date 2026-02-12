@@ -19,7 +19,8 @@
 
 ## Testing
 
-Test where possible, but not if it introduces excessive complexity
+- Test where possible, but not if it introduces excessive complexity
+- `test.sh` requires nested incus support — see `TESTING.md` for outer container prerequisites.
 
 ## Target platform
 

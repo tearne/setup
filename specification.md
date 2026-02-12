@@ -2,17 +2,19 @@
 
 ## Overview
 
-A command-line application to set up basic tools for development on Ubuntu/Debian.
+A script to install basic dev tools on Ubuntu/Debian.
 
 ## Usage
 
-- Just invoking one command to set everything up
+- Run one command to set everything up:
+  - setup.sh if system doesn't have `uv` installed already
+  - setup.py if it does.
 
 ## Dependencies
 
-- BASH - no assumption of a specific version of Python, which will be installed by `uv` at runtime.
+- BASH
+- `uv` will ensure Python is used at runtime.
 - Use Python 3.12 and whatever dependencies aid readabiliy
-- `git` - if the script is to be pulled from external repository.
 
 ## Configuration
 
@@ -20,17 +22,18 @@ Intially, there's no configuration.  Everything is hard coded in the source code
 
 ## Functional Requirements
 
+- Installation commands should be clearly displayed while the command runs (not pushed off top of terminal).
 - Idempotency - if a tool installed, skip it, if a config exists, warn.
 - Minimal interaction once started - user starts it and goes to get coffee.
 - Error handling - fail fast, with breadcrumbs indicating on how far it got.
-- Prompts for user password once at start.
-- Wherever possible, the tool will install dependencies it needs, minimising user burden
+- Prompts for user password once at start if required.
+- Wherever possible, the tool will install its own dependencies at runtime (e.g. `uv`, `curl`).
 
 ### Tools to install
 All latest stable versions
-- `uv` (via `curl`) - presumed bootstrapped via outer BASH script or manually by user.
+- `uv` (via `curl`) - bootstrapped via outer BASH script or manually by user.
 - Rust and Cargo with rust analyzer (via RustUp (via `curl`))
-- Helix editor (download latest stable release from GitHub and install in `~.local/bin`).
+- Helix editor (download latest stable deb from GitHub).
 - Helix config (via soft link to a local resources directory if possible):
      ```
      theme = "autumn"
@@ -64,7 +67,6 @@ All latest stable versions
 - Testing where possible without compromising the simplicity of the code.
 - Testing can be undertaken within an incus container where relevant.
 - Use the latest LTS Ubuntu for testing.
-- The test harness should detect early if it's running inside a container without nesting support, and abort with a clear message rather than failing mid-run.
 
 ### Test scenarios
 
@@ -80,8 +82,9 @@ All latest stable versions
 ## Non-Goals
 
 - No flags and config files at this stage, as prefer to simply edit the code.
-- Not cross platform - Debian/Ubuntu based only
- 
+- Not cross platform - Debian/Ubuntu based only.
+- No fancy logging, just fail fast with breadcrumbs. 
+
 ## Future goals
 
 - Colourful and pretty stdout with progress bar(s)

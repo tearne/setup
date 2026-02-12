@@ -9,7 +9,6 @@ import os
 import shutil
 import getpass
 import platform
-import tarfile
 import urllib.request
 import json
 from pathlib import Path
@@ -55,16 +54,16 @@ def task(name):
 
 def run(cmd, env=None):
     merged = {**os.environ, **(env or {})}
-    result = subprocess.run(
+    proc = subprocess.Popen(
         cmd, shell=True, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         env=merged,
     )
-    if result.stdout.strip():
-        for line in result.stdout.strip().splitlines():
-            log(line)
-    if result.returncode != 0:
-        log(f"FAILED (exit {result.returncode}): {cmd}")
+    for line in proc.stdout:
+        log(line.rstrip("\n"))
+    proc.wait()
+    if proc.returncode != 0:
+        log(f"FAILED (exit {proc.returncode}): {cmd}")
         sys.exit(1)
 
 
@@ -74,17 +73,19 @@ def sudo(cmd, env=None):
     else:
         full = f"sudo -S {cmd}"
         merged = {**os.environ, **(env or {})}
-        result = subprocess.run(
+        proc = subprocess.Popen(
             full, shell=True, text=True,
-            input=_password + "\n",
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             env=merged,
         )
-        if result.stdout.strip():
-            for line in result.stdout.strip().splitlines():
-                log(line)
-        if result.returncode != 0:
-            log(f"FAILED (exit {result.returncode}): {cmd}")
+        proc.stdin.write(_password + "\n")
+        proc.stdin.close()
+        for line in proc.stdout:
+            log(line.rstrip("\n"))
+        proc.wait()
+        if proc.returncode != 0:
+            log(f"FAILED (exit {proc.returncode}): {cmd}")
             sys.exit(1)
 
 
@@ -92,8 +93,9 @@ def init_password():
     global _password
     if os.geteuid() == 0:
         return
+    if subprocess.run("sudo -n true", shell=True, capture_output=True).returncode == 0:
+        return
     _password = getpass.getpass("Enter sudo password: ")
-    # Validate it
     result = subprocess.run(
         "sudo -S true", shell=True, text=True,
         input=_password + "\n",
@@ -171,11 +173,9 @@ def install_helix():
             return
 
         machine = platform.machine()
-        if machine == "x86_64":
-            arch = "x86_64"
-        elif machine == "aarch64":
-            arch = "aarch64"
-        else:
+        deb_arch_map = {"x86_64": "amd64", "aarch64": "arm64"}
+        deb_arch = deb_arch_map.get(machine)
+        if not deb_arch:
             log(f"Unsupported architecture: {machine}")
             sys.exit(1)
 
@@ -187,65 +187,25 @@ def install_helix():
             tag = release["tag_name"]
             log(f"latest release: {tag}")
 
-            # Find the tarball for this arch
-            target = f"{arch}-linux"
             asset_url = None
             for asset in release["assets"]:
                 name = asset["name"]
-                if target in name and name.endswith(".tar.xz"):
+                if name.endswith(".deb") and deb_arch in name:
                     asset_url = asset["browser_download_url"]
                     break
 
             if not asset_url:
-                log(f"No release asset found for {target}")
+                log(f"No .deb asset found for {deb_arch}")
                 sys.exit(1)
 
+            deb_path = Path(f"/tmp/helix-{tag}-{deb_arch}.deb")
             log(f"downloading {asset_url}")
-            archive_path = Path("/tmp/helix-release.tar.xz")
-            urllib.request.urlretrieve(asset_url, archive_path)
+            urllib.request.urlretrieve(asset_url, deb_path)
 
         with task("installing"):
-            extract_dir = Path("/tmp/helix-extract")
-            if extract_dir.exists():
-                shutil.rmtree(extract_dir)
-            extract_dir.mkdir()
-
-            with tarfile.open(archive_path, "r:xz") as tar:
-                tar.extractall(extract_dir)
-
-            # Find the extracted directory (e.g. helix-25.01-x86_64-linux)
-            extracted = list(extract_dir.iterdir())
-            if len(extracted) != 1:
-                log(f"Unexpected archive contents: {extracted}")
-                sys.exit(1)
-            helix_dir = extracted[0]
-
-            local_bin = Path.home() / ".local" / "bin"
-            local_bin.mkdir(parents=True, exist_ok=True)
-
-            # Install the binary
-            src_bin = helix_dir / "hx"
-            dst_bin = local_bin / "hx"
-            shutil.copy2(src_bin, dst_bin)
-            dst_bin.chmod(0o755)
-
-            # Install the runtime directory alongside the binary
-            src_runtime = helix_dir / "runtime"
-            dst_runtime = Path.home() / ".config" / "helix" / "runtime"
-            dst_runtime.parent.mkdir(parents=True, exist_ok=True)
-            if dst_runtime.exists():
-                shutil.rmtree(dst_runtime)
-            shutil.copytree(src_runtime, dst_runtime)
-
-            # Ensure ~/.local/bin is on PATH
-            if str(local_bin) not in os.environ["PATH"]:
-                os.environ["PATH"] = str(local_bin) + ":" + os.environ["PATH"]
-
+            sudo(f"dpkg -i {deb_path}")
+            deb_path.unlink(missing_ok=True)
             log("done")
-
-        # Cleanup
-        archive_path.unlink(missing_ok=True)
-        shutil.rmtree(extract_dir, ignore_errors=True)
 
         _link_helix_config()
 

@@ -45,8 +45,8 @@ cexec() { incus exec "$CONTAINER" -- bash -c "$1"; }
 echo ""
 echo "=== Post-setup verification ==="
 
-# --- Tool installation (8 checks) ---
-for tool in htop btop incus rustc cargo zellij hx harper-ls; do
+# --- Tool installation (9 checks) ---
+for tool in htop btop incus rustc cargo zellij hx harper-ls pylsp; do
     if cexec "export PATH=\"\$HOME/.cargo/bin:\$HOME/.local/bin:\$PATH\" && command -v $tool" &>/dev/null; then
         pass "$tool installed"
     else
@@ -115,9 +115,9 @@ fi
 # --- Summary ---
 echo ""
 if [ "$FAILURES" -eq 0 ]; then
-    echo "All 16 checks passed."
+    echo "All 17 checks passed."
 else
-    echo "$FAILURES of 16 checks failed."
+    echo "$FAILURES of 17 checks failed."
 fi
 
 echo ""

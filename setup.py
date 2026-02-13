@@ -25,6 +25,7 @@ def install():
     install_zellij()
     install_helix()
     install_harper_ls()
+    install_pylsp()
     install_tok()
     setup_local_bin_path()
 
@@ -153,6 +154,15 @@ def install_harper_ls():
             log("already installed, skipping")
             return
         run("cargo binstall --no-confirm harper-ls")
+        log("done")
+
+
+def install_pylsp():
+    with task("pylsp"):
+        if is_installed("pylsp"):
+            log("already installed, skipping")
+            return
+        run("uv tool install python-lsp-server")
         log("done")
 
 

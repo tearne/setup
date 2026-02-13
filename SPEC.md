@@ -4,11 +4,15 @@
 
 A script to install basic dev tools on Ubuntu/Debian.
 
+
+
 ## Usage
 
 - Run one command to set everything up:
   - setup.sh if system doesn't have `uv` installed already
   - setup.py if it does.
+
+
 
 ## Dependencies
 
@@ -16,9 +20,13 @@ A script to install basic dev tools on Ubuntu/Debian.
 - `uv` will ensure Python is used at runtime.
 - Use Python 3.12 and whatever dependencies aid readability
 
+
+
 ## Configuration
 
 Initially, there's no configuration. Everything is hard coded in the source code. The script should have a single, obvious place near the top where each tool's install is called directly — e.g. `install_zellij()`. To skip a tool, the user comments out that line.
+
+
 
 ## Functional Requirements
 
@@ -33,9 +41,12 @@ Initially, there's no configuration. Everything is hard coded in the source code
 ### Third-party tools to install
 All latest stable versions
 - `uv` (via `curl`) - bootstrapped via outer BASH script or manually by user.
-- Rust and Cargo with rust analyzer (via RustUp (via `curl`))
-- Helix editor (download latest stable deb from GitHub).
- - `harper-ls`
+- Rust, including
+  - Cargo and rust analyzer (via RustUp (via `curl`)) for Helix
+- Helix editor (download latest stable deb from GitHub), including language servers:
+  - `harper-ls` (via `cargo binstall`)
+  - `pyright` (via `uv`)
+  - `ruff` (via `uv`)
 - Zellij (via `cargo binstall`)
 - `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
 - Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
@@ -45,7 +56,7 @@ All latest stable versions
 
 ### Configuration to Set Up
 
-#### General Requirements
+#### General
 - When installing a config, soft link it from the resources folder. Perform the linking operation using a relative path so it doesn't matter where the project has been checked out.
 - If a symlink is dangling (target no longer exists), replace it silently.
 - If config file exists, don't overwrite it. Perform a diff to determine if there is a non-whitespace difference between the existing and installable config and then:
@@ -53,23 +64,23 @@ All latest stable versions
   - Record the warning so all warnings can be summarised at the end
   - When displaying config warnings at the end of the run, show a diff
 
-#### Specific Requirements
+#### Specific
 - Ensure that `.local/bin/` is on the users path.
-- Helix config (via soft link to a local resources directory if possible):
-     ```
-     theme = "autumn"
-
-     [editor]
-     true-color = true
-     line-number = "relative"
-     bufferline = "always"
-     rulers = [80]
-     ```
+- Add Helix config (via soft link to a local resources directory if possible):
+  - config
+    - set `true-color`
+    - set `autumn` theme
+    - put a ruler at 80 chars
+  - languages
+    - set `soft-wrap` for markdown files
   - Configure `harper-ls` to use a British English dictionary
+  - Add a language server config if required to make use of the installed lsps
+
+
 
 ## Non-Functional Requirements
 
-- Use the POS style.
+- Use POS style.
 - Root structure to include these key files:
 ```
 <project root>/
@@ -78,6 +89,7 @@ All latest stable versions
 ├── setup.py    # Python logic (uv single-file script)
 ├── test.sh     # Incus test harness
 ```
+
 
 
 ## Testing
@@ -89,17 +101,20 @@ All latest stable versions
 ### Test Scenarios
 
 - Test the overall installation process completes without error
-- Verify each tool is callable after setup (`htop`, `btop`, `incus`, `rustc`, `cargo`, `zellij`, `hx`, `harper-ls`)
+- Verify each tool is callable after setup (`htop`, `btop`, `incus`, `rustc`, `cargo`, `zellij`, `hx`, `harper-ls`, `pylsp`)
 - Verify config symlinks point to the expected relative targets
 - Verify config file content (`theme = "autumn"`, `dialect = "British"`)
-- Check that new terminals get `.local/bin` on their PATH
-- Test existing configs are not overwritten, with a warning emitted
+- Check that new terminals get `.local/bin` on their path
+- Test existing configs are not overwritten. Warn that they will not be overwritten and move on.
 
 ### Logging / Output
 
 - No logging to file, only stdout/stderr
 - Use a structured/hierarchical log output format, which reveals which stage/sub-stage we're at, as well as output from any processes being run.
 
+
+
 ## Non-Goals
 
-- No flags and config files at this stage, as prefer to simply edit the code.
+- No flags and config - just edit setup.py 
+

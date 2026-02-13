@@ -128,16 +128,20 @@ def _link_helix_config():
             src = SCRIPT_DIR / "resources" / "helix" / filename
             dst = Path.home() / ".config" / "helix" / filename
             dst.parent.mkdir(parents=True, exist_ok=True)
-            if dst.exists() or dst.is_symlink():
+            if dst.is_symlink() or dst.exists():
                 if dst.is_symlink() and dst.resolve() == src.resolve():
                     log("symlink already correct")
                     continue
-                diff = _config_diff(src, dst)
-                if diff is None:
-                    log(f"{dst} exists with equivalent content, skipping")
+                if dst.is_symlink() and not dst.exists():
+                    log(f"replacing dangling symlink {dst}")
+                    dst.unlink()
+                else:
+                    diff = _config_diff(src, dst)
+                    if diff is None:
+                        log(f"{dst} exists with equivalent content, skipping")
+                        continue
+                    warn(f"{dst} differs from installable config, not overwriting (delete and rerun to update)", diff=diff)
                     continue
-                warn(f"{dst} differs from installable config, not overwriting (delete and rerun to update)", diff=diff)
-                continue
             rel = os.path.relpath(src, dst.parent)
             os.symlink(rel, dst)
             log(f"symlinked {dst} -> {rel}")
@@ -169,12 +173,16 @@ def install_tok():
         src = SCRIPT_DIR / "resources" / "tok" / "tok"
         dst = Path.home() / ".local" / "bin" / "tok"
         dst.parent.mkdir(parents=True, exist_ok=True)
-        if dst.exists() or dst.is_symlink():
+        if dst.is_symlink() or dst.exists():
             if dst.is_symlink() and dst.resolve() == src.resolve():
                 log("symlink already correct")
                 return
-            warn(f"{dst} already exists, not overwriting")
-            return
+            if dst.is_symlink() and not dst.exists():
+                log(f"replacing dangling symlink {dst}")
+                dst.unlink()
+            else:
+                warn(f"{dst} already exists, not overwriting")
+                return
         rel = os.path.relpath(src, dst.parent)
         os.symlink(rel, dst)
         log(f"symlinked {dst} -> {rel}")

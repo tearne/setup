@@ -47,6 +47,7 @@ All latest stable versions
 
 #### General Requirements
 - When installing a config, soft link it from the resources folder. Perform the linking operation using a relative path so it doesn't matter where the project has been checked out.
+- If a symlink is dangling (target no longer exists), replace it silently.
 - If config file exists, don't overwrite it. Perform a diff to determine if there is a non-whitespace difference between the existing and installable config and then:
   - Warn the user if the installable config is different and they can delete the current config and rerun if they want to overwrite.
   - Record the warning so all warnings can be summarised at the end
@@ -87,9 +88,12 @@ All latest stable versions
 
 ### Test Scenarios
 
-- Test existing configs are not overwritten. Warn that they will not be overwritten and move on.
-- Check that new terminals get `.local/bin` on their path.
 - Test the overall installation process completes without error
+- Verify each tool is callable after setup (`htop`, `btop`, `incus`, `rustc`, `cargo`, `zellij`, `hx`, `harper-ls`)
+- Verify config symlinks point to the expected relative targets
+- Verify config file content (`theme = "autumn"`, `dialect = "British"`)
+- Check that new terminals get `.local/bin` on their PATH
+- Test existing configs are not overwritten, with a warning emitted
 
 ### Logging / Output
 

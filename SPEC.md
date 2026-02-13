@@ -14,11 +14,11 @@ A script to install basic dev tools on Ubuntu/Debian.
 
 - BASH
 - `uv` will ensure Python is used at runtime.
-- Use Python 3.12 and whatever dependencies aid readabiliy
+- Use Python 3.12 and whatever dependencies aid readability
 
 ## Configuration
 
-Intially, there's no configuration.  Everything is hard coded in the source code.  The script should have a single, obvious place near the top where each tool's install is called directly — e.g. `install_zellij()`. To skip a tool, the user comments out that line.
+Initially, there's no configuration. Everything is hard coded in the source code. The script should have a single, obvious place near the top where each tool's install is called directly — e.g. `install_zellij()`. To skip a tool, the user comments out that line.
 
 ## Functional Requirements
 
@@ -35,6 +35,16 @@ All latest stable versions
 - `uv` (via `curl`) - bootstrapped via outer BASH script or manually by user.
 - Rust and Cargo with rust analyzer (via RustUp (via `curl`))
 - Helix editor (download latest stable deb from GitHub).
+ - `harper-ls`
+- Zellij (via `cargo binstall`)
+- `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
+- Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
+
+### Scripts / Aliases to Install
+- `tok` (see `resources`) to be installed in `.local/bin`
+
+### Configuration to Set Up
+- Ensure that `.local/bin/` is on the users path.
 - Helix config (via soft link to a local resources directory if possible):
      ```
      theme = "autumn"
@@ -45,18 +55,10 @@ All latest stable versions
      bufferline = "always"
      rulers = [80]
      ```
-- Zellij (via `cargo binstall`)
-- `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
-- Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
-
-### Scripts / aliases to install
-- `tok` (see `resources`) to be installed in `.local/bin`
-
-### Configuration to Set Up
-- Ensure that `.local/bin/` is on the users path.
 
 ## Non-Functional Requirements
 
+- Use the POS style.
 - Root structure to include these key files:
 ```
 <project root>/

@@ -1,9 +1,7 @@
 # Specification: `tok` Script
 
-
-
 ## Overview
-This command can be initialised with a secret (the *tok*en), which it encrypts against a supplied passphrase and stores on disk.  When requested it prompts for the passphrase, decrypts the secret and copies it to the system clipboard (e.g. using `xclip` or `wl-copy`).  After that it doesn't exit, but waits for a default of 10 seconds before overwriting the clipboard.
+This command can be initialised with a secret (the *tok*en), which it encrypts against a supplied passphrase and stores on disk. When requested it prompts for the passphrase, decrypts the secret and copies it to the system clipboard (e.g. using `xclip` or `wl-copy`). After that it doesn't exit, but waits for a default of 10 seconds before overwriting the clipboard.
 
 ## Usage
 - `tok --add` or `tok -a`
@@ -22,7 +20,7 @@ This command can be initialised with a secret (the *tok*en), which it encrypts a
 ## Implementation
 - A minimal shell script.
 - Attempts to detect if the terminal is running on X11, Wayland, or Windows and chooses the appropriate system clipboard tool.
-- Uses a ubiquitus and well regarded encryption tool.
+- Uses a ubiquitous and well regarded encryption tool.
 - Is written in a style so that it would be easy to see how the secret can be decrypted manually on the command line.
 - Rather than implement a method to manage the encrypted secrets within `tok`, they are stored as individual `.enc` files in `~/.local/share/tok/` and can be manually renamed, added to, or deleted.
 - Supports a `--stdout` flag that outputs the decrypted secret to stdout instead of the clipboard (skips the clipboard-clear timer). Enables automated testing and piping.

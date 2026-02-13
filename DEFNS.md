@@ -7,7 +7,7 @@ POS guidance:
 - If there is a reasonably simple command to achieve a task in the shell, prefer running that command in a subprocess over the more Pythonic equivalent.
 - This makes it easier for users to discover the command they may want to copy and paste into a terminal.
     - Examples:
-        - To download the latest vesion of the `helix` `deb` for `amd64`:
+        - To download the latest version of the `helix` `deb` for `amd64`:
         ```py
         subprocess.run(r"""curl -s https://api.github.com/repos/helix-editor/helix/releases/latest | grep -oP '"browser_download_url": "\K[^"]*amd64.deb' | xargs wget""")
         ```

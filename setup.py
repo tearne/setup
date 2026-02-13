@@ -8,6 +8,7 @@ import sys
 import os
 import shutil
 import getpass
+import difflib
 from pathlib import Path
 from contextlib import contextmanager
 
@@ -23,6 +24,7 @@ def install():
     install_rust()
     install_zellij()
     install_helix()
+    install_harper_ls()
     install_tok()
     setup_local_bin_path()
 
@@ -117,18 +119,37 @@ def install_helix():
 
 
 def _link_helix_config():
-    with task("helix config"):
-        src = SCRIPT_DIR / "resources" / "helix" / "config.toml"
-        dst = Path.home() / ".config" / "helix" / "config.toml"
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        if dst.exists() or dst.is_symlink():
-            if dst.is_symlink() and dst.resolve() == src.resolve():
-                log("symlink already correct")
-                return
-            log(f"WARNING: {dst} already exists, replacing")
-            dst.unlink()
-        os.symlink(src, dst)
-        log(f"symlinked {dst} -> {src}")
+    configs = [
+        ("config.toml", "helix config"),
+        ("languages.toml", "helix languages"),
+    ]
+    for filename, label in configs:
+        with task(label):
+            src = SCRIPT_DIR / "resources" / "helix" / filename
+            dst = Path.home() / ".config" / "helix" / filename
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if dst.exists() or dst.is_symlink():
+                if dst.is_symlink() and dst.resolve() == src.resolve():
+                    log("symlink already correct")
+                    continue
+                diff = _config_diff(src, dst)
+                if diff is None:
+                    log(f"{dst} exists with equivalent content, skipping")
+                    continue
+                warn(f"{dst} differs from installable config, not overwriting (delete and rerun to update)", diff=diff)
+                continue
+            rel = os.path.relpath(src, dst.parent)
+            os.symlink(rel, dst)
+            log(f"symlinked {dst} -> {rel}")
+
+
+def install_harper_ls():
+    with task("harper-ls"):
+        if is_installed("harper-ls"):
+            log("already installed, skipping")
+            return
+        run("cargo binstall --no-confirm harper-ls")
+        log("done")
 
 
 def setup_local_bin_path():
@@ -152,10 +173,11 @@ def install_tok():
             if dst.is_symlink() and dst.resolve() == src.resolve():
                 log("symlink already correct")
                 return
-            log(f"WARNING: {dst} already exists, replacing")
-            dst.unlink()
-        os.symlink(src, dst)
-        log(f"symlinked {dst} -> {src}")
+            warn(f"{dst} already exists, not overwriting")
+            return
+        rel = os.path.relpath(src, dst.parent)
+        os.symlink(rel, dst)
+        log(f"symlinked {dst} -> {rel}")
 
 
 # ---------------------------------------------------------------------------
@@ -164,6 +186,7 @@ def install_tok():
 
 _indent = 0
 _password = None
+_warnings = []
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -171,6 +194,25 @@ def log(msg):
     prefix = "  " * _indent
     for line in msg.splitlines():
         print(f"{prefix}{line}", flush=True)
+
+
+def warn(msg, diff=None):
+    log(f"WARNING: {msg}")
+    _warnings.append((msg, diff))
+
+
+def _config_diff(src, dst):
+    """Compare two config files ignoring whitespace.
+    Returns unified diff string if they differ, None if equivalent."""
+    src_lines = src.read_text().splitlines()
+    dst_lines = dst.read_text().splitlines()
+    if [l.strip() for l in src_lines] == [l.strip() for l in dst_lines]:
+        return None
+    return "\n".join(difflib.unified_diff(
+        dst_lines, src_lines,
+        fromfile=str(dst), tofile=str(src),
+        lineterm="",
+    ))
 
 
 @contextmanager
@@ -250,6 +292,15 @@ def main():
             sudo("DEBIAN_FRONTEND=noninteractive apt-get update -qq")
 
         install()
+
+    if _warnings:
+        log("")
+        log("Warnings:")
+        for msg, diff in _warnings:
+            log(f"  - {msg}")
+            if diff:
+                for line in diff.splitlines():
+                    log(f"    {line}")
 
     log("Setup complete.")
 

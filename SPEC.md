@@ -44,6 +44,15 @@ All latest stable versions
 - `tok` (see `resources`) to be installed in `.local/bin`
 
 ### Configuration to Set Up
+
+#### General Requirements
+- When installing a config, soft link it from the resources folder. Perform the linking operation using a relative path so it doesn't matter where the project has been checked out.
+- If config file exists, don't overwrite it. Perform a diff to determine if there is a non-whitespace difference between the existing and installable config and then:
+  - Warn the user if the installable config is different and they can delete the current config and rerun if they want to overwrite.
+  - Record the warning so all warnings can be summarised at the end
+  - When displaying config warnings at the end of the run, show a diff
+
+#### Specific Requirements
 - Ensure that `.local/bin/` is on the users path.
 - Helix config (via soft link to a local resources directory if possible):
      ```
@@ -55,6 +64,7 @@ All latest stable versions
      bufferline = "always"
      rulers = [80]
      ```
+  - Configure `harper-ls` to use a British English dictionary
 
 ## Non-Functional Requirements
 

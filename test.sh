@@ -24,13 +24,13 @@ sleep 5
 
 echo "Pushing setup files into container..."
 incus exec "$CONTAINER" -- mkdir -p /root/setup
-incus file push "$SCRIPT_DIR/setup.sh" "$CONTAINER/root/setup/"
-incus file push "$SCRIPT_DIR/setup.py" "$CONTAINER/root/setup/"
+incus file push "$SCRIPT_DIR/bootstrap_inst.sh" "$CONTAINER/root/setup/"
+incus file push "$SCRIPT_DIR/install.py" "$CONTAINER/root/setup/"
 incus file push -r "$SCRIPT_DIR/resources" "$CONTAINER/root/setup/"
 
 echo "Running setup inside container..."
 echo "============================================================"
-incus exec "$CONTAINER" -- bash /root/setup/setup.sh
+incus exec "$CONTAINER" -- bash /root/setup/bootstrap_inst.sh
 echo "============================================================"
 
 # ---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ cexec "rm -f ~/.config/helix/config.toml"
 cexec "echo 'theme = \"catppuccin\"' > ~/.config/helix/config.toml"
 
 # Re-run setup and capture output
-SETUP_OUTPUT=$(incus exec "$CONTAINER" -- bash /root/setup/setup.sh 2>&1) || true
+SETUP_OUTPUT=$(incus exec "$CONTAINER" -- bash /root/setup/bootstrap_inst.sh 2>&1) || true
 
 if cexec "grep -q 'theme = \"catppuccin\"' ~/.config/helix/config.toml"; then
     pass "existing config not overwritten"
@@ -116,16 +116,16 @@ fi
 echo ""
 echo "=== Install log test ==="
 
-if cexec "test -f /root/setup/setup.log"; then
-    pass "setup.log exists"
+if cexec "test -f /root/setup/install.log"; then
+    pass "install.log exists"
 else
-    fail "setup.log exists"
+    fail "install.log exists"
 fi
 
-if cexec "grep -qP '\\e\\[' /root/setup/setup.log"; then
-    fail "setup.log contains no ANSI escapes"
+if cexec "grep -qP '\\e\\[' /root/setup/install.log"; then
+    fail "install.log contains no ANSI escapes"
 else
-    pass "setup.log contains no ANSI escapes"
+    pass "install.log contains no ANSI escapes"
 fi
 
 # --- Summary ---

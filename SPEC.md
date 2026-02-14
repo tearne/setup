@@ -11,8 +11,8 @@ This project contains items to help set up a development environment on Ubuntu/D
 ## Usage
 
 - Run one command sets everything up:
-  - `setup.sh` if system doesn't have `uv` installed already
-  - otherwise `setup.py` can be used directly.
+  - `bootstrap_inst.sh` if system doesn't have `uv` installed already
+  - otherwise `install.py` can be used directly.
 
 
 
@@ -26,7 +26,7 @@ This project contains items to help set up a development environment on Ubuntu/D
 
 ## Configuration
 
-No configuration for the `setup.sh` installer - everything hard coded, following the POS style.
+No configuration for the `bootstrap_inst.sh` installer - everything hard coded, following the POS style.
 
 
 ## Functional Requirements
@@ -50,7 +50,7 @@ All latest stable versions
   - `ruff` (via `uv`)
 - Zellij (via `cargo binstall`)
 - `htop`, `btop` and `incus` (installed non-interactively via apt repos - no PPA)
-- Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when running inside a container (ZFS kernel modules unavailable).
+- Incus initialisation (`incus admin init`) with ZFS storage backend.  Falls back to `dir` backend when ZFS is not installed.
 
 ### Scripts / Aliases to Install
 - `tok` (see `resources`) to be installed in `.local/bin`
@@ -86,8 +86,8 @@ All latest stable versions
 ```
 <project root>/
 ├── resources/  # Config files to be soft linked during installation
-├── setup.sh    # Bash entry point, bootstraps `uv`
-├── setup.py    # Python logic (uv single-file script)
+├── bootstrap_inst.sh  # Bash entry point, bootstraps `uv`
+├── install.py         # Python logic (uv single-file script)
 ├── test.sh     # Incus test harness
 ```
 
@@ -117,5 +117,5 @@ All latest stable versions
 
 ## Non-Goals
 
-- No flags and config - just edit setup.py 
+- No flags and config - just edit install.py
 

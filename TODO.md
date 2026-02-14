@@ -18,3 +18,6 @@
 - [x] Display the shell command being run alongside the task description (SPEC.md line 34)
 - [x] Prevent long command output from pushing task headers off screen (SPEC.md line 34)
 - [x] Create install log file with commands and full output (SPEC.md Logging/Output)
+- [x] Incus ZFS fallback: check if ZFS is installed instead of detecting container (SPEC.md line 53)
+- [x] Rename setup.py to install.py and setup.sh to bootstrap_inst.sh, and update SPEC accordingly
+

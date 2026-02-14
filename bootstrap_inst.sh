@@ -22,4 +22,4 @@ if ! command -v uv &>/dev/null; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec uv run "$SCRIPT_DIR/setup.py"
+exec uv run "$SCRIPT_DIR/install.py"

@@ -12,13 +12,13 @@ Dev environment setup for Ubuntu/Debian. Installs tools, configs, and helper scr
 ## Usage
 
 ```sh
-./setup.sh
+./bootstrap_inst.sh
 ```
 
-This bootstraps `uv` and `curl` if missing, then runs `setup.py`. Idempotent — safe to re-run.
+This bootstraps `uv` and `curl` if missing, then runs `install.py`. Idempotent — safe to re-run.
 
 If `uv` is already installed:
 
 ```sh
-./setup.py
+./install.py
 ```

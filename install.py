@@ -14,7 +14,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 if not (os.environ.get("VIRTUAL_ENV") or os.environ.get("UV_INTERNAL__PARENT_INTERPRETER")):
-    print("Error: run this script via 'uv run setup.py' or setup.sh, not directly.")
+    print("Error: run this script via './install.py' or bootstrap_inst.sh, not directly.")
     sys.exit(1)
 
 # ---------------------------------------------------------------------------
@@ -68,17 +68,14 @@ def install_incus():
 
 
 def init_incus():
-    in_container = subprocess.run("systemd-detect-virt --container --quiet", shell=True).returncode == 0
-    # ZFS backend not tested in containers (no kernel modules available)
-    backend = "dir" if in_container else "zfs"
+    has_zfs = subprocess.run("command -v zfs", shell=True, capture_output=True).returncode == 0
+    backend = "zfs" if has_zfs else "dir"
 
     with task(f"incus init ({backend})"):
         sudo("systemctl start incus.service")
         if subprocess.run("incus storage show default", shell=True, capture_output=True).returncode == 0:
             log("already initialized, skipping")
             return
-        if backend == "zfs":
-            sudo("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq zfsutils-linux")
         sudo(f"incus admin init --auto --storage-backend={backend}")
         log("done")
 
@@ -189,7 +186,7 @@ def setup_local_bin_path():
             log("already configured")
             return
         with open(profile, "a") as f:
-            f.write(f'\n# Added by setup.py\nexport {marker}\n')
+            f.write(f'\n# Added by install.py\nexport {marker}\n')
         log(f"appended to {profile}")
 
 
@@ -336,7 +333,7 @@ def is_installed(cmd):
 
 def main():
     global _logfile
-    _logfile = open(SCRIPT_DIR / "setup.log", "w")
+    _logfile = open(SCRIPT_DIR / "install.log", "w")
 
     with task("Dev environment setup"):
         init_password()

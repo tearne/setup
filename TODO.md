@@ -14,6 +14,6 @@
 - [x] Fix the issue of passphrase being visible in the process list, but only for the python version.  Update the spec to indicate this security requirement
 - [x] Remove BASH version of tok
 - [x] Rewrite the `tok` tests in a Pythonic style
-- [ ] Write a brief README.md
+- [x] Write a brief README.md
 - [ ] Display the shell command being run alongside the task description (SPEC.md line 34)
 - [ ] Prevent long command output from pushing task headers off screen (SPEC.md line 34)

@@ -5,6 +5,19 @@ args = ["--stdio"]
 [language-server.harper-ls.config.harper-ls]
 dialect = "British"
 
+[language-server.pyright]
+command = "pyright-langserver"
+args = ["--stdio"]
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
 [[language]]
 name = "markdown"
+soft-wrap.enable = true
 language-servers = ["marksman", "harper-ls"]
+
+[[language]]
+name = "python"
+language-servers = ["pyright", "ruff"]

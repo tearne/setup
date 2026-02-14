@@ -12,6 +12,10 @@ import difflib
 from pathlib import Path
 from contextlib import contextmanager
 
+if not (os.environ.get("VIRTUAL_ENV") or os.environ.get("UV_INTERNAL__PARENT_INTERPRETER")):
+    print("Error: run this script via 'uv run setup.py' or setup.sh, not directly.")
+    sys.exit(1)
+
 # ---------------------------------------------------------------------------
 # Comment out any tool you don't want installed
 # ---------------------------------------------------------------------------
@@ -25,7 +29,8 @@ def install():
     install_zellij()
     install_helix()
     install_harper_ls()
-    install_pylsp()
+    install_pyright()
+    install_ruff()
     install_tok()
     setup_local_bin_path()
 
@@ -157,12 +162,21 @@ def install_harper_ls():
         log("done")
 
 
-def install_pylsp():
-    with task("pylsp"):
-        if is_installed("pylsp"):
+def install_pyright():
+    with task("pyright"):
+        if is_installed("pyright"):
             log("already installed, skipping")
             return
-        run("uv tool install python-lsp-server")
+        run("uv tool install pyright")
+        log("done")
+
+
+def install_ruff():
+    with task("ruff"):
+        if is_installed("ruff"):
+            log("already installed, skipping")
+            return
+        run("uv tool install ruff")
         log("done")
 
 

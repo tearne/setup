@@ -1,19 +1,9 @@
 # AGENTS Guidelines
 
 - Read definitions and terminology in `DEFNS.md`
-- Read specifications (`SPEC.md`), which may also be nested within sub folders
+- Read specifications (`SPEC.md`), both in the root, and potentially nested within subfolders
 
-- When planning non-trivial changes, offer to save or update/append to a `TODO.md` (in the root of the project or relevant sub dir) and keep it up to date as features are implemented
-- When undertaking non-trivial changes, do them one at a time and give the operator the opportunity to review and/or run the tests
-
-- Prompt to consider committing before starting work on a new feature
-
-# Testing: Incus Nested Container Harness
-
-`test.sh` launches an Ubuntu 24.04 incus container and runs `setup.sh` inside it.
-This requires nested container support.
-
-## Prerequisites
-
-No special configuration — just have `incus` installed and initialised (`incus admin init`).
+- When planning nontrivial changes update the `TODO.md` which sits alongside the relevant `SPEC.md`
+- Keep the TODOs up to date
+- Pause between TODO items and invite the operator to review
 

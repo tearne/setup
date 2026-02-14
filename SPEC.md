@@ -2,39 +2,40 @@
 
 ## Overview
 
-A script to install basic dev tools on Ubuntu/Debian.
-
+This project contains items to help set up a development environment on Ubuntu/Debian
+- a script to install basic dev tools
+- config files to install
+- helper scripts (e.g. a tool to hold encrypted tokens)
 
 
 ## Usage
 
-- Run one command to set everything up:
-  - setup.sh if system doesn't have `uv` installed already
-  - setup.py if it does.
+- Run one command sets everything up:
+  - `setup.sh` if system doesn't have `uv` installed already
+  - otherwise `setup.py` can be used directly.
+
 
 
 
 ## Dependencies
 
-- BASH
 - `uv` will ensure Python is used at runtime.
-- Use Python 3.12 and whatever dependencies aid readability
+- Python 3.12
 
 
 
 ## Configuration
 
-Initially, there's no configuration. Everything is hard coded in the source code. The script should have a single, obvious place near the top where each tool's install is called directly — e.g. `install_zellij()`. To skip a tool, the user comments out that line.
-
+No configuration for the `setup.sh` installer - everything hard coded, following the POS style.
 
 
 ## Functional Requirements
 
-- Installation commands should be clearly displayed while the command runs (not pushed off top of terminal).
+- Installation commands should clearly display the shell command that is currently running, along with a description such as "installing <tool>".  These messages should not be pushed off top of terminal.
 - Idempotency - if a tool installed, skip it, if a config exists do nothing, bu warn and summarise at the end of the run.
 - Minimal interaction once started - user starts it and goes to get coffee.
 - Error handling - fail fast, with breadcrumbs indicating on how far it got.
-- Prompts for user password once at start if required.
+- Prompts for user password once at start,  if required.
 - Wherever possible, the tool will install its own dependencies at runtime (e.g. `uv`, `curl`).
 - When installing assets, copy from a relative rather than an absolute path.
 
@@ -101,7 +102,7 @@ All latest stable versions
 ### Test Scenarios
 
 - Test the overall installation process completes without error
-- Verify each tool is callable after setup (`htop`, `btop`, `incus`, `rustc`, `cargo`, `zellij`, `hx`, `harper-ls`, `pylsp`)
+- Verify each tool is callable after setup (`htop`, `btop`, `incus`, `rustc`, `cargo`, `zellij`, `hx`, `harper-ls`, `pyright`, `ruff`)
 - Verify config symlinks point to the expected relative targets
 - Verify config file content (`theme = "autumn"`, `dialect = "British"`)
 - Check that new terminals get `.local/bin` on their path

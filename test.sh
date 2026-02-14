@@ -46,7 +46,7 @@ echo ""
 echo "=== Post-setup verification ==="
 
 # --- Tool installation (9 checks) ---
-for tool in htop btop incus rustc cargo zellij hx harper-ls pylsp; do
+for tool in htop btop incus rustc cargo zellij hx harper-ls pyright ruff; do
     if cexec "export PATH=\"\$HOME/.cargo/bin:\$HOME/.local/bin:\$PATH\" && command -v $tool" &>/dev/null; then
         pass "$tool installed"
     else
@@ -115,9 +115,9 @@ fi
 # --- Summary ---
 echo ""
 if [ "$FAILURES" -eq 0 ]; then
-    echo "All 17 checks passed."
+    echo "All 18 checks passed."
 else
-    echo "$FAILURES of 17 checks failed."
+    echo "$FAILURES of 18 checks failed."
 fi
 
 echo ""

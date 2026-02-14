@@ -194,7 +194,7 @@ def setup_local_bin_path():
 
 def install_tok():
     with task("tok"):
-        src = SCRIPT_DIR / "resources" / "tok" / "tok"
+        src = SCRIPT_DIR / "resources" / "tok" / "tok.py"
         dst = Path.home() / ".local" / "bin" / "tok"
         dst.parent.mkdir(parents=True, exist_ok=True)
         if dst.is_symlink() or dst.exists():

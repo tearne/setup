@@ -67,7 +67,7 @@ check_symlink() {
 
 check_symlink ~/.config/helix/config.toml   "../../setup/resources/helix/config.toml"   "config.toml symlink"
 check_symlink ~/.config/helix/languages.toml "../../setup/resources/helix/languages.toml" "languages.toml symlink"
-check_symlink ~/.local/bin/tok               "../../setup/resources/tok/tok"              "tok symlink"
+check_symlink ~/.local/bin/tok               "../../setup/resources/tok/tok.py"            "tok symlink"
 
 # --- PATH (1 check) ---
 if cexec "bash --login -c 'echo \$PATH'" 2>/dev/null | grep -q '\.local/bin'; then

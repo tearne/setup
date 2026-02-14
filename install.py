@@ -92,14 +92,19 @@ def install_rust():
         log("done")
 
 
+def ensure_cargo_binstall():
+    if is_installed("cargo-binstall"):
+        return
+    with task("cargo-binstall"):
+        run("curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash")
+
+
 def install_zellij():
     with task("Zellij"):
         if is_installed("zellij"):
             log("already installed, skipping")
             return
-        if not is_installed("cargo-binstall"):
-            with task("cargo-binstall"):
-                run("curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash")
+        ensure_cargo_binstall()
         run("cargo binstall --no-confirm zellij")
         log("done")
 
@@ -156,6 +161,7 @@ def install_harper_ls():
         if is_installed("harper-ls"):
             log("already installed, skipping")
             return
+        ensure_cargo_binstall()
         run("cargo binstall --no-confirm harper-ls")
         log("done")
 

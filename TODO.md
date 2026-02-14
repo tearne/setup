@@ -11,6 +11,9 @@
 - [x] Fix 9: Add `soft-wrap` for markdown in `resources/helix/languages.toml`
 - [x] Fix 10: Add language server config for `pyright`/`ruff` in `resources/helix/languages.toml`
 - [x] Fix 11: Add `venv` guard to `setup.py`
+- [x] Fix the issue of passphrase being visible in the process list, but only for the python version.  Update the spec to indicate this security requirement
 - [ ] Remove BASH version of tok
 - [ ] Rewrite the `tok` tests in a Pythonic style
 - [ ] Write a brief README.md
+- [ ] Display the shell command being run alongside the task description (SPEC.md line 34)
+- [ ] Prevent long command output from pushing task headers off screen (SPEC.md line 34)

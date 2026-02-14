@@ -99,11 +99,11 @@ def main():
             sys.stderr.flush()
             name = sys.stdin.readline().rstrip("\n")
 
-        # openssl enc -aes-256-cbc -pbkdf2 -salt -pass pass:<passphrase> -out <file>
+        # openssl enc -aes-256-cbc -pbkdf2 -salt -pass stdin -out <file>
         subprocess.run(
             ["openssl", "enc", "-aes-256-cbc", "-pbkdf2", "-salt",
-             "-pass", f"pass:{passphrase}", "-out", str(TOK_DIR / f"{name}.enc")],
-            input=secret.encode(),
+             "-pass", "stdin", "-out", str(TOK_DIR / f"{name}.enc")],
+            input=(passphrase + "\n" + secret).encode(),
             check=True,
         )
         sys.stderr.write(f"Secret '{name}' stored.\n")
@@ -128,10 +128,11 @@ def main():
 
     passphrase = read_passphrase("Passphrase: ")
 
-    # openssl enc -aes-256-cbc -pbkdf2 -d -pass pass:<passphrase> -in <file>
+    # openssl enc -aes-256-cbc -pbkdf2 -d -pass stdin -in <file>
     result = subprocess.run(
         ["openssl", "enc", "-aes-256-cbc", "-pbkdf2", "-d",
-         "-pass", f"pass:{passphrase}", "-in", str(enc_file)],
+         "-pass", "stdin", "-in", str(enc_file)],
+        input=(passphrase + "\n").encode(),
         capture_output=True,
     )
     if result.returncode != 0:

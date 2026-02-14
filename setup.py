@@ -6,6 +6,7 @@
 import subprocess
 import sys
 import os
+import re
 import shutil
 import getpass
 import difflib
@@ -219,6 +220,8 @@ def install_tok():
 _indent = 0
 _password = None
 _warnings = []
+_logfile = None
+_ansi_re = re.compile(r"\033\[[0-9;]*m")  # strip ANSI escapes for log file
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 
@@ -226,6 +229,8 @@ def log(msg):
     prefix = "  " * _indent
     for line in msg.splitlines():
         print(f"{prefix}{line}", flush=True)
+        if _logfile:
+            _logfile.write(_ansi_re.sub("", f"{prefix}{line}") + "\n")
 
 
 def warn(msg, diff=None):
@@ -265,6 +270,8 @@ def _stream_output(proc):
         line = line.rstrip("\n")
         sys.stdout.write(f"\033[2K\r{prefix}{line}")
         sys.stdout.flush()
+        if _logfile:
+            _logfile.write(f"{prefix}{line}\n")
         had_output = True
     if had_output:
         sys.stdout.write("\n")
@@ -328,6 +335,9 @@ def is_installed(cmd):
 # ---------------------------------------------------------------------------
 
 def main():
+    global _logfile
+    _logfile = open(SCRIPT_DIR / "setup.log", "w")
+
     with task("Dev environment setup"):
         init_password()
 
@@ -346,6 +356,7 @@ def main():
                     log(f"    {line}")
 
     log("Setup complete.")
+    _logfile.close()
 
 
 if __name__ == "__main__":

@@ -17,3 +17,4 @@
 - [x] Write a brief README.md
 - [x] Display the shell command being run alongside the task description (SPEC.md line 34)
 - [x] Prevent long command output from pushing task headers off screen (SPEC.md line 34)
+- [x] Create install log file with commands and full output (SPEC.md Logging/Output)

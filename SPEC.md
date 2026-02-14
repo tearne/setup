@@ -38,8 +38,6 @@ No configuration for the `setup.sh` installer - everything hard coded, following
 - Prompts for user password once at start,  if required.
 - Wherever possible, the tool will install its own dependencies at runtime (e.g. `uv`, `curl`).
 - When installing assets, copy from a relative rather than an absolute path.
-- Create an install log containing the commands that were run and their output, to compensate for manipulation of the console printed to the users terminal during the run.
-  - When rerunning, the log can be overwritten
 
 ### Third-party tools to install
 All latest stable versions
@@ -112,8 +110,8 @@ All latest stable versions
 
 ### Logging / Output
 
-- No logging to file, only stdout/stderr
 - Use a structured/hierarchical log output format, which reveals which stage/sub-stage we're at, as well as output from any processes being run.
+- Create an install log file containing the commands that were run and their full output, to compensate for the single-line console display during the run. The log is overwritten on each run.
 
 
 

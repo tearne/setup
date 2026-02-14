@@ -15,5 +15,5 @@
 - [x] Remove BASH version of tok
 - [x] Rewrite the `tok` tests in a Pythonic style
 - [x] Write a brief README.md
-- [ ] Display the shell command being run alongside the task description (SPEC.md line 34)
-- [ ] Prevent long command output from pushing task headers off screen (SPEC.md line 34)
+- [x] Display the shell command being run alongside the task description (SPEC.md line 34)
+- [x] Prevent long command output from pushing task headers off screen (SPEC.md line 34)

@@ -258,14 +258,26 @@ def task(name):
         _indent -= 1
 
 
+def _stream_output(proc):
+    prefix = "  " * _indent
+    had_output = False
+    for line in proc.stdout:
+        line = line.rstrip("\n")
+        sys.stdout.write(f"\033[2K\r{prefix}{line}")
+        sys.stdout.flush()
+        had_output = True
+    if had_output:
+        sys.stdout.write("\n")
+    proc.wait()
+
+
 def run(cmd):
+    log(f"\033[2m$ {cmd}\033[0m")
     proc = subprocess.Popen(
         cmd, shell=True, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
-    for line in proc.stdout:
-        log(line.rstrip("\n"))
-    proc.wait()
+    _stream_output(proc)
     if proc.returncode != 0:
         log(f"FAILED (exit {proc.returncode}): {cmd}")
         sys.exit(1)
@@ -275,6 +287,7 @@ def sudo(cmd):
     if os.geteuid() == 0:
         run(cmd)
     else:
+        log(f"\033[2m$ {cmd}\033[0m")
         full = f"sudo -S {cmd}"
         proc = subprocess.Popen(
             full, shell=True, text=True,
@@ -283,9 +296,7 @@ def sudo(cmd):
         )
         proc.stdin.write(_password + "\n")
         proc.stdin.close()
-        for line in proc.stdout:
-            log(line.rstrip("\n"))
-        proc.wait()
+        _stream_output(proc)
         if proc.returncode != 0:
             log(f"FAILED (exit {proc.returncode}): {cmd}")
             sys.exit(1)

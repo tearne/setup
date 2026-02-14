@@ -112,12 +112,29 @@ else
     fail "warning emitted for existing config"
 fi
 
+# --- Install log (2 checks) ---
+echo ""
+echo "=== Install log test ==="
+
+if cexec "test -f /root/setup/setup.log"; then
+    pass "setup.log exists"
+else
+    fail "setup.log exists"
+fi
+
+if cexec "grep -qP '\\e\\[' /root/setup/setup.log"; then
+    fail "setup.log contains no ANSI escapes"
+else
+    pass "setup.log contains no ANSI escapes"
+fi
+
 # --- Summary ---
 echo ""
+TOTAL=$((18 + 2))
 if [ "$FAILURES" -eq 0 ]; then
-    echo "All 18 checks passed."
+    echo "All $TOTAL checks passed."
 else
-    echo "$FAILURES of 18 checks failed."
+    echo "$FAILURES of $TOTAL checks failed."
 fi
 
 echo ""
